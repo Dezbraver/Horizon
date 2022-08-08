@@ -1,0 +1,38 @@
+########################################################################
+# Memory Analysis Settings
+########################################################################
+
+EnableMemoryAnalysis = false
+
+########## PLUGINS ##########
+
+##########  LINUX  ##########
+BashFileExtractor = false
+LCheckSyscallFileExtractor = false
+ElfsFilesExtractor = false
+LLsmodFileExtractor = false
+LsofFilesExtractor = false
+MapsFilesExtractor = false
+TTYCheckFileExtractor = false
+
+##########  MACOS  ##########
+PsauxFilesExtractor = false
+MLsmodFileExtractor = false
+MCheckSyscallFileExtractor = false
+IfconfigFileExtractor = false
+KeventsFilesExtractor = false
+MountFileExtractor = false
+NetstatFilesExtractor = false
+
+########## WINDOWS ##########
+DumpFilesExtractor = false
+EnvarsFilesExtractor = false
+CmdLineExtractor = false
+NetScanExtractor = false
+DllListFilesExtractor = false
+DriverScanFileExtractor = false
+PrivsFilesExtractor = false
+HiveListFileExtractor = false
+PrintKeyFileExtractor = false
+SkeletonKeyCheckFileExtractor = false
+SymlinkScanFileExtractor = false
