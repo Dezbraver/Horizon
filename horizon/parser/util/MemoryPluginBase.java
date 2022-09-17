@@ -1,4 +1,4 @@
-package dpf.sp.gpinf.indexer.parsers.util;
+package iped.parsers.util;
 
 import org.xml.sax.SAXException;
 

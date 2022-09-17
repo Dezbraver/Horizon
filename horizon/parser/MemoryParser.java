@@ -1,9 +1,9 @@
-package dpf.sp.gpinf.indexer.parsers;
+package iped.parsers.misc;
 
 import java.io.*;
 import java.util.*;
 
-import dpf.sp.gpinf.indexer.parsers.util.MemoryPlugin;
+import iped.parsers.util.MemoryPlugin;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.extractor.EmbeddedDocumentExtractor;

@@ -1,14 +1,13 @@
-package dpf.sp.gpinf.indexer.parsers.util;
+package iped.parsers.util;
 
-import com.zaxxer.sparsebits.SparseBitSet;
-import iped3.util.ExtraProperties;
+import iped.properties.ExtraProperties;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.logging.log4j.Level;
 import org.apache.tika.extractor.EmbeddedDocumentExtractor;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.sax.XHTMLContentHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,7 @@ import org.xml.sax.SAXException;
 
 import javax.swing.*;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -55,7 +55,7 @@ public class MemoryPlugin {
         for (String plugin : plugins) {
             try {
                 Class<MemoryPluginBase> c = (Class<MemoryPluginBase>) Class.forName(plugin);
-                MemoryPluginBase obj = c.newInstance();
+                MemoryPluginBase obj = c.getDeclaredConstructor().newInstance();
                 if (obj.runOS().toString().equals(os)) {
                     obj.runPlugin();
                 }
@@ -65,6 +65,10 @@ public class MemoryPlugin {
             } catch (InstantiationException e) {
                 throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            } catch (NoSuchMethodException e) {
                 throw new RuntimeException(e);
             } finally {
                 continue;
@@ -88,7 +92,7 @@ public class MemoryPlugin {
 
         final Metadata entrydata = new Metadata();
 
-        entrydata.set(Metadata.RESOURCE_NAME_KEY, fileName);
+        entrydata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName);
         entrydata.set(ExtraProperties.ITEM_VIRTUAL_ID, iVID);
         entrydata.set(ExtraProperties.PARENT_VIRTUAL_ID, pVID);
 
@@ -149,7 +153,7 @@ public class MemoryPlugin {
 
         Metadata entrydata = new Metadata();
 
-        entrydata.set(Metadata.RESOURCE_NAME_KEY, folderName);
+        entrydata.set(TikaCoreProperties.RESOURCE_NAME_KEY, folderName);
         entrydata.set(ExtraProperties.ITEM_VIRTUAL_ID, iVID);
         entrydata.set(ExtraProperties.PARENT_VIRTUAL_ID, pVID);
         entrydata.set(ExtraProperties.EMBEDDED_FOLDER, "true"); //$NON-NLS-1$
