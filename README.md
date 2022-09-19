@@ -8,6 +8,10 @@ Horizon is an open source tool that integrates the processing capabilities of Vo
 2. Take advantage of IPED's graphical interface for results management.
 3. Allow new integrations to be created by the community using plugins.
 
+## How to?
+
+Please check our [Wiki](https://github.com/Dezbraver/Horizon/wiki) for more instructions.
+
 ## Integrations Performed
 
 ### Windows Plugins
