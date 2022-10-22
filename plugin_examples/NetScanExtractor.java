@@ -1,7 +1,6 @@
 import iped.parsers.util.MemoryPluginBase;
 import org.xml.sax.SAXException;
 
-import javax.swing.*;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,21 +8,20 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class NetstatFilesExtractor extends MemoryPluginBase {
+public class NetScanExtractor extends MemoryPluginBase {
 
     @Override
     public void runPlugin() {
         Map<String, String> pidInputs = new HashMap<>();
         InputStream is = null;
         try {
-            is = getV3PluginOutput("mac.netstat.Netstat", null);
-            JOptionPane.showMessageDialog(null, is.toString());
+            is = getV3PluginOutput("windows.netscan.NetScan", null);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
-        Pattern pattern = Pattern.compile("(0x[\\S]+)\\s+([\\S]+)\\s+([\\S\\d]+)\\s+([\\d]+)\\s+([\\S\\d]+)\\s+([\\d]+)\\s+([\\S]*)\\s*([\\S]+)/([\\d]+)");
+        Pattern pattern = Pattern.compile("([\\S]+)\\s+([\\S]+)\\s+([\\S]+)\\s+([\\S]+)\\s+([\\S]+)\\s+([\\S]+)\\s+([\\S]*)\\s+([\\S]+)\\s+([\\S]+)\\s+([\\S]+)\\s+([\\S]+)");
 
         while(true) {
             String l = null;
@@ -36,17 +34,19 @@ public class NetstatFilesExtractor extends MemoryPluginBase {
             }
             Matcher matcher = pattern.matcher(l);
             if(matcher.find()) {
-                String offset = matcher.group(1);
-                String proto = matcher.group(2);
-                String localIP = matcher.group(3);
+                String pid = matcher.group(8);
+                String processName = matcher.group(9);
+                String protocol = matcher.group(2);
+                String localAddr = matcher.group(3);
                 String localPort = matcher.group(4);
-                String remoteIP = matcher.group(5);
+                String remoteAddr = matcher.group(5);
                 String remotePort = matcher.group(6);
-                String state = matcher.group(7);
-                String processName = matcher.group(8);
-                String pid = matcher.group(9);
+                String state = (matcher.group(7) == ""? "\t\t": matcher.group(7));
+                String date = matcher.group(10);
+                String time = matcher.group(11);
 
-                String inputString = offset + " " + proto + " " + localIP + " " + localPort + " " + remoteIP + " " + remotePort + " " + state + " " + processName + "/" + pid + "\n";
+                String inputString = String.format("%-14s\t%-8s\t%-39s\t%-10s\t%-39s\t%-11s\t%-11s\t%-10s\t%-15s\n",
+                        processName, protocol, localAddr, localPort, remoteAddr, remotePort, state, date, time);
 
                 if(pidInputs.get(pid) != null) {
                     // Escreve para um dado pid, uma nova linha com nome e valor de uma variável de ambiente abaixo do
@@ -60,16 +60,17 @@ public class NetstatFilesExtractor extends MemoryPluginBase {
             }
         }
 
+        String header = String.format("%-14s\t%-8s\t%-39s\t%-10s\t%-39s\t%-11s\t%-11s\t%-10s\t%-15s\n", "PROCESS NAME",
+                "PROTOCOL", "LOCAL ADDRESS", "LOCAL PORT", "REMOTE ADDRESS", "REMOTE PORT", "STATE","DATE", "TIME");
         Set pidset = pidInputs.keySet();
 
         // Escreve um arquivo de variáveis de ambiente para cada pid, o inserindo no IPED
         for(Object opid: pidset) {
-            String header = "Offset\tProto\tLocal IP\tLocal Port\tRemote IP\tRemote Port\tState\tProcess\n";
             String pid = opid.toString();
-            String name = pid + "_Netstat.txt";
-            String istream = header + pidInputs.get(pid);
+            String name = pid + "_NetScan.txt";
             try {
-                addFile(name, name, pid, new ByteArrayInputStream(istream.getBytes()));
+                String inputS = header + pidInputs.get(pid);
+                addFile(name, name, pid, new ByteArrayInputStream(inputS.getBytes()));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (SAXException e) {
@@ -80,6 +81,6 @@ public class NetstatFilesExtractor extends MemoryPluginBase {
 
     @Override
     public OSystems runOS() {
-        return OSystems.MACOS;
+        return OSystems.WINDOWS;
     }
 }

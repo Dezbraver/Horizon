@@ -5,22 +5,23 @@ import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BashFileExtractor extends MemoryPluginBase {
+public class MountFileExtractor extends MemoryPluginBase {
 
     @Override
     public void runPlugin() {
-        String inputString = "PID\tProcess\tCommand Time\tCommand\n";
+        String inputString = "Device\tMount Point\tType\n";
         InputStream is = null;
         try {
-            is = getV3PluginOutput("linux.bash.Bash", null);
+            is = getV3PluginOutput("mac.mount.Mount", null);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
-        Pattern pattern = Pattern.compile("(.*)");
+        Pattern pattern = Pattern.compile("([\\S+\\s]+)\\s+([\\S+\\s]+)\\s+(\\S+)");
 
         try {
+            reader.readLine();
             reader.readLine();
             reader.readLine();
             reader.readLine();
@@ -39,13 +40,15 @@ public class BashFileExtractor extends MemoryPluginBase {
             }
             Matcher matcher = pattern.matcher(l);
             if(matcher.find()) {
-                String result = matcher.group(1);
+                String device = matcher.group(1);
+                String mountPoint = matcher.group(2);
+                String type = matcher.group(3);
 
-                inputString += result + "\n";
+                inputString += device + " " + mountPoint + " " + type + "\n";
             }
         }
 
-        String name = "Commands_Bash.txt";
+        String name = "Mount_Points_Mount.txt";
         try {
             addFile(name, name, "General", new ByteArrayInputStream(inputString.getBytes()));
         } catch (IOException e) {
@@ -57,6 +60,6 @@ public class BashFileExtractor extends MemoryPluginBase {
 
     @Override
     public OSystems runOS() {
-        return OSystems.LINUX;
+        return OSystems.MACOS;
     }
 }

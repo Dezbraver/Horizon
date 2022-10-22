@@ -5,28 +5,20 @@ import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BashFileExtractor extends MemoryPluginBase {
+public class IfconfigFileExtractor extends MemoryPluginBase {
 
     @Override
     public void runPlugin() {
-        String inputString = "PID\tProcess\tCommand Time\tCommand\n";
+        String inputString = "Interface\tIP Address\tMac Address\tPromiscuous\n";
         InputStream is = null;
         try {
-            is = getV3PluginOutput("linux.bash.Bash", null);
+            is = getV3PluginOutput("mac.ifconfig.Ifconfig", null);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
-        Pattern pattern = Pattern.compile("(.*)");
-
-        try {
-            reader.readLine();
-            reader.readLine();
-            reader.readLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        Pattern pattern = Pattern.compile("(\\S+)\\s+([\\S\\.\\:]*)\\s+([\\S\\.\\:]*)\\s+(\\S+)");
 
         while(true) {
             String l = null;
@@ -39,13 +31,17 @@ public class BashFileExtractor extends MemoryPluginBase {
             }
             Matcher matcher = pattern.matcher(l);
             if(matcher.find()) {
-                String result = matcher.group(1);
+                String iface = matcher.group(1);
+                if (iface.equalsIgnoreCase("volatility") || iface.equalsIgnoreCase("interface")) continue;
+                String IPAddress = matcher.group(2) == null? "": matcher.group(2);
+                String MacAddress = matcher.group(3) == null? "": matcher.group(3);
+                String Promiscuous = matcher.group(4);
 
-                inputString += result + "\n";
+                inputString += iface + " " + IPAddress + " " + MacAddress + " " + Promiscuous + "\n";
             }
         }
 
-        String name = "Commands_Bash.txt";
+        String name = "Interface_Configuration_Ifconfig.txt";
         try {
             addFile(name, name, "General", new ByteArrayInputStream(inputString.getBytes()));
         } catch (IOException e) {
@@ -57,6 +53,6 @@ public class BashFileExtractor extends MemoryPluginBase {
 
     @Override
     public OSystems runOS() {
-        return OSystems.LINUX;
+        return OSystems.MACOS;
     }
 }

@@ -1,4 +1,4 @@
-import dpf.sp.gpinf.indexer.parsers.util.MemoryPluginBase;
+import iped.parsers.util.MemoryPluginBase;
 import org.xml.sax.SAXException;
 
 import java.io.File;

@@ -5,20 +5,20 @@ import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BashFileExtractor extends MemoryPluginBase {
+public class SkeletonKeyCheckFileExtractor extends MemoryPluginBase {
 
     @Override
     public void runPlugin() {
-        String inputString = "PID\tProcess\tCommand Time\tCommand\n";
+        String inputString = "PID\tProcess\tSkeleton Key Found\trc4HmacInitialize\trc4HmacDecrypt\n";
         InputStream is = null;
         try {
-            is = getV3PluginOutput("linux.bash.Bash", null);
+            is = getV3PluginOutput("windows.skeleton_key_check.Skeleton_Key_Check", null);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
-        Pattern pattern = Pattern.compile("(.*)");
+        Pattern pattern = Pattern.compile("(\\d[\\S\\s]+)");
 
         try {
             reader.readLine();
@@ -45,7 +45,7 @@ public class BashFileExtractor extends MemoryPluginBase {
             }
         }
 
-        String name = "Commands_Bash.txt";
+        String name = "SkeletonKeyCheck.txt";
         try {
             addFile(name, name, "General", new ByteArrayInputStream(inputString.getBytes()));
         } catch (IOException e) {
@@ -57,6 +57,6 @@ public class BashFileExtractor extends MemoryPluginBase {
 
     @Override
     public OSystems runOS() {
-        return OSystems.LINUX;
+        return OSystems.WINDOWS;
     }
 }

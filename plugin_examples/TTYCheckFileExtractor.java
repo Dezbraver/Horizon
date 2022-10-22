@@ -5,14 +5,14 @@ import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BashFileExtractor extends MemoryPluginBase {
+public class TTYCheckFileExtractor extends MemoryPluginBase {
 
     @Override
     public void runPlugin() {
-        String inputString = "PID\tProcess\tCommand Time\tCommand\n";
+        String inputString = "Name\tAddress\tModule\tSymbol\n";
         InputStream is = null;
         try {
-            is = getV3PluginOutput("linux.bash.Bash", null);
+            is = getV3PluginOutput("linux.tty_check.tty_check", null);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -45,7 +45,7 @@ public class BashFileExtractor extends MemoryPluginBase {
             }
         }
 
-        String name = "Commands_Bash.txt";
+        String name = "TTYCheck.txt";
         try {
             addFile(name, name, "General", new ByteArrayInputStream(inputString.getBytes()));
         } catch (IOException e) {
